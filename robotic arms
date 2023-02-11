@@ -1,0 +1,55 @@
+import time
+from motorController import *
+
+board = NanoMotorBoard()
+def Init():
+    print("reboot")
+    board.reboot()
+    time.sleep_ms(500)
+    
+    motors = []
+
+    # at 50 it works as expected, at 60 shift sides and 
+    #is too small duty to move, at 70 is very big duty.
+    for i in range(2):
+        motors.append(DCMotor(i))
+
+    for motor in motors:  # initialize
+        b = motor.setDuty(0)
+        b = motor.resetEncoder(0)
+    return motors
+
+def Stop(motors):  
+    for motor in motors:  # initialize
+        b = motor.setDuty(0)
+
+
+motors = Init()
+# for i in range(100):
+    # Ramp(motors)
+Stop(motors)
+for motor in motors:
+    motor.setDuty(0)
+
+time.sleep(1.75)
+# Stop(motors)
+#b = motor.setDuty(duty)
+# e = motor.readEncoder()
+# print(a)
+Stop(motors)
+e = motors[0].readEncoder()
+a = e*(360/1200)
+print(a)
+time.sleep_ms(100)
+
+angles = [(motors[0].readEncoder())*(3/10),(motors[1].readEncoder())*(3/10)]
+
+def runmotor(i, angle):
+    motors[i].setDuty(15)
+    currentangle = (motors[i].readEncoder())*(3/10)
+    while (currentangle -angles[i] )< angle:
+        currentangle = (motors[i].readEncoder())*(3/10)
+        print(motors[i].readEncoder())
+        time.sleep_ms(1)
+    motors[i].setDuty(0)
+    angles[i] = (motors[i].readEncoder())*(3/10)
